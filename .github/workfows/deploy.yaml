@@ -1,0 +1,31 @@
+name: deploy
+
+on:
+  push:
+    branch: ["main"]
+
+env:
+  REGISTRY: cachac  
+  IMAGE_NAME: rest_api
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout code
+
+      - name: login to Dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.REGISTRY }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          build-args: |
+            APP_ENV=${{ secrets.APP_ENV }}
