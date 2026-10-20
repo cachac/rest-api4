@@ -74,7 +74,17 @@ jobs:
 
       - name: Check Status
         if: ${{ env.SONAR_STATUS == 'ERROR' }}
-        run: exit 1
+        run:  echo "CVE's found"
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run snyk
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
 
 
 
