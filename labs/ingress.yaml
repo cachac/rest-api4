@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-frontend-ingress
+  namespace: demo
+
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: carlos.kubelabs.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-frontend
+            port:
+              number: 8080
