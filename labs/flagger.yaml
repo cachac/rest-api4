@@ -1,0 +1,50 @@
+apiVersion: flagger.app/v1beta1 # CRD
+kind: Canary
+metadata:
+  name: demo-frontend
+  namespace: demo
+
+spec:
+  provider: nginx
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: demo-frontend
+  ingressRef:
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    name: demo-frontend-ingress
+  autoscalerRef:
+    apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    name: demo-frontend-hpa
+
+  progressDeadlineSeconds: 60
+  service:
+    port: 8080
+    targetPort: 8080
+
+  analysis:
+    interval: 10s
+    threshold: 10
+    maxWeight: 70
+    stepWeight: 5
+
+    metrics:
+      - name: request-success-rate
+        thresholdRange:
+          min: 99
+        interval: 2m
+
+    webhooks:
+      - name: "Flagger load test"
+        type: rollout
+        url: http://flagger-loadtester.demo/
+        timeout: 10s
+        metadata:
+          type: cmd
+          cmd: "hey -z 2m -q 10 -c 2 http://carlos.kubelabs.dev"
+
+
+  
+
